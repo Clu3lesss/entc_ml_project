@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoundCluster — Spotify Mood Predictor</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #13131a;
+      --surface2:  #1c1c28;
+      --border:    #2a2a3a;
+      --text:      #e8e8f0;
+      --muted:     #6b6b82;
+      --accent:    #7c3aed;
+      --accent-glow: rgba(124, 58, 237, 0.35);
+
+      --party:  #a855f7;
+      --workout:#22d3ee;
+      --study:  #34d399;
+
+      --radius: 12px;
+      --transition: 180ms ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    header {
+      width: 100%;
+      padding: 28px 32px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .logo {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #7c3aed, #22d3ee);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+    header span { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+
+    /* ── Main layout ──────────────────────────────────────────────── */
+    main {
+      width: 100%;
+      max-width: 900px;
+      padding: 40px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Section title ────────────────────────────────────────────── */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── Cluster legend ───────────────────────────────────────────── */
+    .clusters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .cluster-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .cluster-card:hover { transform: translateY(-2px); }
+
+    .cluster-card.party  { border-color: rgba(168,85,247,0.4); }
+    .cluster-card.workout{ border-color: rgba(34,211,238,0.4); }
+    .cluster-card.study  { border-color: rgba(52,211,153,0.4); }
+
+    .cluster-emoji { font-size: 1.8rem; }
+    .cluster-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .cluster-label.party  { color: var(--party); }
+    .cluster-label.workout{ color: var(--workout); }
+    .cluster-label.study  { color: var(--study); }
+    .cluster-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Form card ────────────────────────────────────────────────── */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    label abbr {
+      text-decoration: none;
+      border-bottom: 1px dashed var(--border);
+      cursor: help;
+    }
+
+    input[type="number"] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.92rem;
+      padding: 9px 12px;
+      width: 100%;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    input[type="number"].error { border-color: #f87171; }
+
+    .hint { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── Actions ──────────────────────────────────────────────────── */
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 11px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #btn-predict {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(124,58,237,0.4);
+    }
+    #btn-predict:hover:not(:disabled) { opacity: 0.9; }
+
+    #btn-sample {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    #btn-sample:hover { color: var(--text); border-color: var(--accent); }
+
+    #btn-clear {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    #btn-clear:hover { color: var(--text); }
+
+    /* ── Result panel ─────────────────────────────────────────────── */
+    #result {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .result-emoji {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .result-info h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .result-info p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .result-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      border-left: 3px solid var(--border);
+      padding-left: 14px;
+      margin-bottom: 18px;
+    }
+
+    .result-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* confidence bar */
+    .confidence-bar {
+      width: 120px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .confidence-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+
+    /* ── Error toast ──────────────────────────────────────────────── */
+    #error-msg {
+      display: none;
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: #f87171;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+    }
+
+    /* ── Spinner ──────────────────────────────────────────────────── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      header { padding: 18px 16px; }
+      main { padding: 24px 16px 60px; }
+      .form-card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎵</div>
+  <h1>SoundCluster</h1>
+  <span>Spotify Mood Predictor</span>
+</header>
+
+<main>
+
+  <!-- Cluster legend -->
+  <section>
+    <p class="section-title">Mood Clusters</p>
+    <div class="clusters-grid">
+      <div class="cluster-card party">
+        <span class="cluster-emoji">🎤</span>
+        <span class="cluster-label party">Hip-Hop / Party</span>
+        <span class="cluster-desc">High-energy tracks with explicit lyrics, strong beats, and danceability. Built for the dancefloor.</span>
+      </div>
+      <div class="cluster-card workout">
+        <span class="cluster-emoji">💪</span>
+        <span class="cluster-label workout">Workout / Upbeat Pop</span>
+        <span class="cluster-desc">Energetic, feel-good mainstream pop with high valence. Perfect for the gym and commutes.</span>
+      </div>
+      <div class="cluster-card study">
+        <span class="cluster-emoji">📚</span>
+        <span class="cluster-label study">Chill / Study / Acoustic</span>
+        <span class="cluster-desc">Calm, acoustic, low-energy soundscapes ideal for focus, relaxation, and winding down.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prediction form -->
+  <section>
+    <p class="section-title">Enter Song Features</p>
+    <div class="form-card">
+      <div class="features-grid" id="features-grid">
+        <!-- injected by JS -->
+      </div>
+
+      <div id="error-msg"></div>
+
+      <div class="actions" style="margin-top: 8px;">
+        <button id="btn-predict">Predict Cluster</button>
+        <button id="btn-sample">Load Sample Song</button>
+        <button id="btn-clear">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <div id="result"></div>
+
+</main>
+
+<footer>
+  SoundCluster · KMeans Clustering on Spotify Audio Features · ENTC ML Project
+</footer>
+
+<script>
+  // ── Feature definitions ──────────────────────────────────────────────────
+  const FEATURES = [
+    { id: 'popularity',       label: 'Popularity',        hint: '0 – 100',  min: 0,   max: 100,  step: 1   },
+    { id: 'duration_ms',      label: 'Duration (ms)',     hint: '> 0',      min: 1,   max: null, step: 1000},
+    { id: 'explicit',         label: 'Explicit',          hint: '0 or 1',   min: 0,   max: 1,    step: 1   },
+    { id: 'danceability',     label: 'Danceability',      hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'energy',           label: 'Energy',            hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'key',              label: 'Key',               hint: '0 – 11',   min: 0,   max: 11,   step: 1   },
+    { id: 'loudness',         label: 'Loudness (dB)',     hint: '-60 – 5',  min: -60, max: 5,    step: 0.1 },
+    { id: 'mode',             label: 'Mode',              hint: '0=minor 1=major', min: 0, max: 1, step: 1},
+    { id: 'speechiness',      label: 'Speechiness',       hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'acousticness',     label: 'Acousticness',      hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'instrumentalness', label: 'Instrumentalness',  hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'liveness',         label: 'Liveness',          hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'valence',          label: 'Valence',           hint: '0 – 1',    min: 0,   max: 1,    step: 0.01},
+    { id: 'tempo',            label: 'Tempo (BPM)',       hint: '> 0',      min: 1,   max: 300,  step: 0.1 },
+    { id: 'time_signature',   label: 'Time Signature',    hint: '1 – 7',    min: 1,   max: 7,    step: 1   },
+  ];
+
+  // Sample songs
+  const SAMPLES = [
+    {
+      name: 'Drake – God\'s Plan',
+      values: { popularity:98, duration_ms:198973, explicit:1, danceability:0.754, energy:0.449,
+                key:2, loudness:-9.21, mode:1, speechiness:0.109, acousticness:0.0332,
+                instrumentalness:0, liveness:0.552, valence:0.357, tempo:77.169, time_signature:4 }
+    },
+    {
+      name: 'Ed Sheeran – Shape of You',
+      values: { popularity:95, duration_ms:233712, explicit:0, danceability:0.825, energy:0.652,
+                key:1, loudness:-3.183, mode:0, speechiness:0.0802, acousticness:0.581,
+                instrumentalness:0, liveness:0.0931, valence:0.931, tempo:95.977, time_signature:4 }
+    },
+    {
+      name: 'Bon Iver – Skinny Love',
+      values: { popularity:72, duration_ms:193520, explicit:0, danceability:0.408, energy:0.153,
+                key:9, loudness:-14.2, mode:1, speechiness:0.028, acousticness:0.942,
+                instrumentalness:0.00103, liveness:0.117, valence:0.254, tempo:96.0, time_signature:3 }
+    },
+  ];
+
+  let sampleIdx = 0;
+
+  // ── Build form ────────────────────────────────────────────────────────────
+  const grid = document.getElementById('features-grid');
+  FEATURES.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = `
+      <label for="${f.id}"><abbr title="${f.hint}">${f.label}</abbr></label>
+      <input type="number"
+             id="${f.id}"
+             min="${f.min ?? ''}"
+             max="${f.max ?? ''}"
+             step="${f.step}"
+             placeholder="${f.hint}" />
+      <span class="hint">${f.hint}</span>
+    `;
+    grid.appendChild(div);
+  });
+
+  // ── Sample data ───────────────────────────────────────────────────────────
+  document.getElementById('btn-sample').addEventListener('click', () => {
+    const s = SAMPLES[sampleIdx % SAMPLES.length];
+    sampleIdx++;
+    FEATURES.forEach(f => {
+      const inp = document.getElementById(f.id);
+      inp.value = s.values[f.id];
+      inp.classList.remove('error');
+    });
+    hideResult();
+    hideError();
+  });
+
+  // ── Clear ─────────────────────────────────────────────────────────────────
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    FEATURES.forEach(f => {
+      const inp = document.getElementById(f.id);
+      inp.value = '';
+      inp.classList.remove('error');
+    });
+    hideResult();
+    hideError();
+  });
+
+  // ── Predict ───────────────────────────────────────────────────────────────
+  document.getElementById('btn-predict').addEventListener('click', async () => {
+    hideError();
+    hideResult();
+
+    // Collect + validate
+    const body = {};
+    let valid = true;
+    FEATURES.forEach(f => {
+      const inp = document.getElementById(f.id);
+      const v = parseFloat(inp.value);
+      if (inp.value === '' || isNaN(v)) {
+        inp.classList.add('error');
+        valid = false;
+      } else {
+        inp.classList.remove('error');
+        body[f.id] = v;
+      }
+    });
+
+    if (!valid) {
+      showError('Please fill in all highlighted fields with valid numbers.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-predict');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Predicting…';
+
+    try {
+      const res = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Server error ${res.status}`);
+      }
+
+      const data = await res.json();
+      showResult(data);
+    } catch (e) {
+      showError(e.message.includes('fetch') 
+        ? 'Cannot reach the API. Make sure the server is running on localhost:8000.' 
+        : e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Predict Cluster';
+    }
+  });
+
+  // ── UI helpers ────────────────────────────────────────────────────────────
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
+  function hideError() {
+    document.getElementById('error-msg').style.display = 'none';
+  }
+  function hideResult() {
+    document.getElementById('result').style.display = 'none';
+  }
+
+  function showResult(data) {
+    const el = document.getElementById('result');
+
+    // Confidence: map distance (lower=better) to 0-100%.
+    // Use inverse relationship; clamp distance between 0 and 5 for display.
+    const maxDist = 5;
+    const conf = Math.max(0, Math.min(100, (1 - data.distance_to_center / maxDist) * 100));
+    const confPct = conf.toFixed(1);
+
+    el.style.borderColor = data.color + '66';
+
+    el.innerHTML = `
+      <div class="result-header">
+        <span class="result-emoji">${data.emoji}</span>
+        <div class="result-info">
+          <h2 style="color:${data.color}">${data.label}</h2>
+          <p>Cluster #${data.cluster_id}</p>
+        </div>
+      </div>
+      <p class="result-desc">${data.description}</p>
+      <div class="result-meta">
+        <div class="meta-item">
+          <span class="meta-label">Cluster ID</span>
+          <span class="meta-value">#${data.cluster_id}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Vibe</span>
+          <span class="meta-value" style="text-transform:capitalize">${data.vibe}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Distance to Center</span>
+          <span class="meta-value">${data.distance_to_center}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Cluster Fit</span>
+          <span class="meta-value">${confPct}%</span>
+          <div class="confidence-bar">
+            <div class="confidence-fill" style="width:${confPct}%;background:${data.color}"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>

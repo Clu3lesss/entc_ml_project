@@ -1,0 +1,8 @@
+__pycache__/
+spotify_encoded
+/archive/spotify_encoded.csv
+venv/
+pyvenv.cfg
+bestkemeans.pkl
+/best_kmeans_model.pkl
+/best_kmeans_params.json
