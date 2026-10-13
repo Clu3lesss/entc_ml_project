@@ -13,14 +13,14 @@ Two tools in one module:
 Usage
 -----
     # Full clustering pipeline
-    python model_training.py cluster \\
-        --data archive/spotify-tracks-dataset.csv
+    python scripts/model_training.py cluster \\
+        --data data/spotify-tracks-dataset.csv
 
     # Train the best KMeans found during hyperparameter search
-    python model_training.py train-kmeans \\
-        --data   archive/spotify-tracks-dataset.csv \\
-        --params best_kmeans_params.json            \\
-        --output best_kmeans_model.pkl
+    python scripts/model_training.py train-kmeans \\
+        --data   data/spotify-tracks-dataset.csv \\
+        --params models/best_kmeans_params.json  \\
+        --output models/best_kmeans_model.pkl
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(__file__).resolve().parent.parent
 
 AUDIO_FEATURES = [
     "popularity", "duration_ms", "explicit", "danceability", "energy",
@@ -421,7 +421,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p_cl.add_argument(
         "--data", type=Path,
-        default=_ROOT / "archive" / "spotify-tracks-dataset.csv",
+        default=_ROOT / "data" / "spotify-tracks-dataset.csv",
         help="Path to the raw Spotify CSV.",
     )
     p_cl.add_argument("--n-clusters",  type=int,   default=5)
@@ -442,15 +442,15 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p_km.add_argument(
         "--data", type=Path,
-        default=_ROOT / "archive" / "spotify-tracks-dataset.csv",
+        default=_ROOT / "data" / "spotify-tracks-dataset.csv",
         help="Path to the raw Spotify CSV.",
     )
     p_km.add_argument(
-        "--params", type=Path, default=_ROOT / "best_kmeans_params.json",
+        "--params", type=Path, default=_ROOT / "models" / "best_kmeans_params.json",
         help="JSON file written by hyperparameter_tuning.py.",
     )
     p_km.add_argument(
-        "--output", type=Path, default=_ROOT / "best_kmeans_model.pkl",
+        "--output", type=Path, default=_ROOT / "models" / "best_kmeans_model.pkl",
         help="Destination for the pickled model artefact.",
     )
 

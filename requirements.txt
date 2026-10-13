@@ -12,3 +12,9 @@ ipykernel
 jupyter
 openpyxl
 statsmodels
+
+# API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0
+python-multipart

@@ -5,10 +5,10 @@ KMeans hyperparameter search for the Spotify tracks dataset.
 
 Usage
 -----
-    python hyperparameter_tuning.py                          # uses defaults
-    python hyperparameter_tuning.py --data path/to/data.csv
-    python hyperparameter_tuning.py --data path/to/data.csv \\
-        --output-params best_kmeans_params.json              \\
+    python scripts/hyperparameter_tuning.py                  # uses defaults
+    python scripts/hyperparameter_tuning.py --data path/to/data.csv
+    python scripts/hyperparameter_tuning.py --data path/to/data.csv \\
+        --output-params models/best_kmeans_params.json        \\
         --output-plot   search_results.png
 
 The script saves the best parameters as JSON and (optionally) a silhouette
@@ -35,8 +35,9 @@ from sklearn.preprocessing import StandardScaler
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-_DEFAULT_DATA_PATH   = Path(__file__).resolve().parent / "archive" / "spotify-tracks-dataset.csv"
-_DEFAULT_PARAMS_PATH = Path(__file__).resolve().parent / "best_kmeans_params.json"
+_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_DATA_PATH   = _ROOT / "data" / "spotify-tracks-dataset.csv"
+_DEFAULT_PARAMS_PATH = _ROOT / "models" / "best_kmeans_params.json"
 
 AUDIO_FEATURES = [
     "popularity", "duration_ms", "explicit", "danceability", "energy",
