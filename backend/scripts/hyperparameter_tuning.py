@@ -5,10 +5,10 @@ KMeans hyperparameter search for the Spotify tracks dataset.
 
 Usage
 -----
-    python scripts/hyperparameter_tuning.py                  # uses defaults
-    python scripts/hyperparameter_tuning.py --data path/to/data.csv
-    python scripts/hyperparameter_tuning.py --data path/to/data.csv \\
-        --output-params models/best_kmeans_params.json        \\
+    python backend/scripts/hyperparameter_tuning.py           # uses defaults
+    python backend/scripts/hyperparameter_tuning.py --data path/to/data.csv
+    python backend/scripts/hyperparameter_tuning.py --data path/to/data.csv \\
+        --output-params backend/models/best_kmeans_params.json \\
         --output-plot   search_results.png
 
 The script saves the best parameters as JSON and (optionally) a silhouette

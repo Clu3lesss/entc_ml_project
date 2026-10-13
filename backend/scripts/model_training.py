@@ -13,14 +13,14 @@ Two tools in one module:
 Usage
 -----
     # Full clustering pipeline
-    python scripts/model_training.py cluster \\
-        --data data/spotify-tracks-dataset.csv
+    python backend/scripts/model_training.py cluster \\
+        --data backend/data/spotify-tracks-dataset.csv
 
     # Train the best KMeans found during hyperparameter search
-    python scripts/model_training.py train-kmeans \\
-        --data   data/spotify-tracks-dataset.csv \\
-        --params models/best_kmeans_params.json  \\
-        --output models/best_kmeans_model.pkl
+    python backend/scripts/model_training.py train-kmeans \\
+        --data   backend/data/spotify-tracks-dataset.csv \\
+        --params backend/models/best_kmeans_params.json \\
+        --output backend/models/best_kmeans_model.pkl
 """
 
 from __future__ import annotations

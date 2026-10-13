@@ -2,11 +2,11 @@
 
 ## Backend API
 
-Install the Python dependencies from the repository root:
+From the repository root, install the Python dependencies and start the API:
 
 ```powershell
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --app-dir api --reload
+python -m pip install -r backend/requirements.txt
+python -m uvicorn main:app --app-dir backend/api --reload
 ```
 
 The API runs at `http://127.0.0.1:8000`. Check `http://127.0.0.1:8000/health`
@@ -27,9 +27,9 @@ Open the Vite URL printed in the terminal. The frontend sends API requests to
 
 ## Project folders
 
-- `api/` — FastAPI application
+- `backend/api/` — FastAPI application
 - `frontend/` — React application and Vite configuration
-- `data/` — Spotify track datasets
-- `models/` — trained model and parameters
-- `notebooks/` — analysis and feature-engineering notebooks
-- `scripts/` — model training, tuning, and prediction tools
+- `backend/data/` — Spotify track datasets
+- `backend/models/` — trained model and parameters
+- `backend/notebooks/` — analysis and feature-engineering notebooks
+- `backend/scripts/` — model training, tuning, and prediction tools
