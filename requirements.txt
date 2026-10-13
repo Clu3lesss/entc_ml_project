@@ -1,0 +1,14 @@
+# Compatible with Python 3.10
+numpy
+pandas
+scikit-learn
+seaborn
+matplotlib
+scipy
+joblib
+requests
+pytest
+ipykernel
+jupyter
+openpyxl
+statsmodels
