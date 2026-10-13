@@ -22,8 +22,9 @@ npm ci
 npm run dev
 ```
 
-Open the Vite URL printed in the terminal. The frontend sends API requests to
-`http://localhost:8000`.
+Set `VITE_API_URL` in the frontend environment to the backend base URL
+(`http://localhost:8000` for local development), then open the Vite URL printed
+in the terminal.
 
 ## Project folders
 

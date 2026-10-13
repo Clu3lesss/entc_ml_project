@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react'
 import { FEATURES, SAMPLE_SONGS } from '../constants/clusters'
 import { CLUSTER_COLORS } from '../constants/clusters'
+import { API_URL } from '../config'
 import styles from './PredictSection.module.css'
-
-const API = 'http://localhost:8000'
 
 function FeatureField({ feat, value, hasError, onChange }) {
   return (
@@ -92,7 +91,7 @@ export default function PredictSection() {
 
     setError(''); setResult(null); setLoading(true)
     try {
-      const res = await fetch(`${API}/predict`, {
+      const res = await fetch(`${API_URL}/predict`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })

@@ -5,8 +5,7 @@ import ClusterSection from './components/ClusterSection'
 import PredictSection from './components/PredictSection'
 import SuggestSection from './components/SuggestSection'
 import Footer from './components/Footer'
-
-export const API = 'http://localhost:8000'
+import { API_URL } from './config'
 
 export default function App() {
   const [theme, setTheme]   = useState('dark')
@@ -25,7 +24,7 @@ export default function App() {
 
   // load stats once
   useEffect(() => {
-    fetch(`${API}/stats`).then(r => r.json()).then(setStats).catch(() => {})
+    fetch(`${API_URL}/stats`).then(r => r.json()).then(setStats).catch(() => {})
   }, [])
 
   // nav scroll spy

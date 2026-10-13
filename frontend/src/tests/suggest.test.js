@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { API_URL } from '../config'
 
 // ── Helpers to mirror backend suggestion logic on the client ──────────
 // These test the JS-side filtering and result-count contract for the
@@ -51,7 +52,7 @@ describe('Suggestion logic', () => {
       exclude_ids: [seedId],
     })
 
-    const res = await fetch('http://localhost:8000/suggest', {
+    const res = await fetch(`${API_URL}/suggest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,
@@ -72,7 +73,7 @@ describe('Suggestion logic', () => {
       json: async () => limited,
     })
 
-    const res = await fetch('http://localhost:8000/suggest', {
+    const res = await fetch(`${API_URL}/suggest`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ features: DUMMY_FEATURES, count: COUNT, diversity: 0, exclude_ids: [] }),
@@ -90,7 +91,7 @@ describe('Suggestion logic', () => {
       json: async () => ({ detail: 'Song not found' }),
     })
 
-    const res = await fetch('http://localhost:8000/songs/search?q=ZZZNOMATCH')
+    const res = await fetch(`${API_URL}/songs/search?q=ZZZNOMATCH`)
     expect(res.ok).toBe(false)
 
     const err = await res.json()

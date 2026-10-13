@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import { MOOD_PRESETS, FEATURES, CLUSTER_COLORS } from '../constants/clusters'
+import { API_URL } from '../config'
 import styles from './SuggestSection.module.css'
-
-const API = 'http://localhost:8000'
 
 /* ── Suggestion row ───────────────────────────────────────────────────── */
 function SuggestionRow({ song, onMoreLikeThis }) {
@@ -122,7 +121,7 @@ function SongTab({ onSuggest, loading }) {
     if (!query.trim()) return
     setSearching(true); setSearchErr('')
     try {
-      const res = await fetch(`${API}/songs/search?q=${encodeURIComponent(query)}&limit=20`)
+      const res = await fetch(`${API_URL}/songs/search?q=${encodeURIComponent(query)}&limit=20`)
       if (!res.ok) throw new Error('Search failed')
       setResults(await res.json())
     } catch { setSearchErr('Search failed — is the server running?') }
@@ -252,14 +251,14 @@ export default function SuggestSection() {
     const req = { features, count: 10, diversity, exclude_ids: excludeIds }
     setLastReq(req)
     try {
-      const res = await fetch(`${API}/suggest`, {
+      const res = await fetch(`${API_URL}/suggest`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req),
       })
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Error') }
       setResults(await res.json())
     } catch (e) {
-      setError(e.message.includes('fetch') ? 'API unreachable — is the server running on port 8000?' : e.message)
+      setError(e.message.includes('fetch') ? 'API unreachable — is the server running?' : e.message)
     } finally { setLoading(false) }
   }
 
