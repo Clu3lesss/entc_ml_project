@@ -11,8 +11,8 @@ from typing import Any
 import numpy as np
 
 
-_ROOT = Path(__file__).resolve().parent
-_DEFAULT_MODEL_PATH = _ROOT / "best_kmeans_model.pkl"
+_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_MODEL_PATH = _ROOT / "models" / "best_kmeans_model.pkl"
 _BINARY_FEATURES = {"explicit", "mode"}
 
 
